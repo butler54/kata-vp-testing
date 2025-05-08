@@ -1,6 +1,6 @@
 ---
 global:
-  pattern: multicloud-gitops
+  pattern: kata-vp-testing
   options:
     useCSV: false
     syncPolicy: Automatic
