@@ -4,3 +4,4 @@ metadata:
   name: example-kataconfig
 spec:
   checkNodeEligibility: false
+  logLevel: debug
