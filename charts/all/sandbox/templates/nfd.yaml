@@ -61,7 +61,6 @@ spec:
               - "SSSE3"
             attributeWhitelist:
         kernel:
-          kconfigFile: "/path/to/kconfig"
           configOpts:
             - "NO_HZ"
             - "X86"

@@ -8,7 +8,9 @@ clusterGroup:
   - openshift-sandboxed-containers-operator
   - openshift-nfd
   - kata-test
-  - kata-test-udn
+  - kata-test-udn:
+      annotations:
+        k8s.ovn.org/primary-user-defined-network: ""
   - test
 
   subscriptions:
