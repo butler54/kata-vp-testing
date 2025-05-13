@@ -32,13 +32,6 @@ spec:
       #    logFileMaxSize: 1800
       #    skipLogHeaders: false
       sources:
-        custom:
-          - name: "feature.node.kubernetes.io/runtime.kata"
-            matchOn:
-              - cpuId: ["SSE4", "VMX"]
-                loadedKMod: ["kvm", "kvm_intel"]
-              - cpuId: ["SSE4", "SVM"]
-                loadedKMod: ["kvm", "kvm_amd"]      
         cpu:
           cpuid:
       #     NOTE: whitelist has priority over blacklist
@@ -80,8 +73,12 @@ spec:
             - "12"
           deviceLabelFields:
             - "class"
+ 
   customConfig:
     configData: |
-          - name: "more.kernel.features"
+          - name: "feature.node.kubernetes.io/runtime.kata"
             matchOn:
-            - loadedKMod: ["example_kmod3"]
+              - cpuId: ["SSE4", "VMX"]
+                loadedKMod: ["kvm", "kvm_intel"]
+              - cpuId: ["SSE4", "SVM"]
+                loadedKMod: ["kvm", "kvm_amd"]     
