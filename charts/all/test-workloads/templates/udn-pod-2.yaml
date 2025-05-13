@@ -6,7 +6,7 @@ metadata:
   labels:
     app: udn2
 spec:
-  runtimeClassName: udn2
+  runtimeClassName: kata
   containers:
     - name: hello-openshift
       image: quay.io/openshift/origin-hello-openshift
