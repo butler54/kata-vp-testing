@@ -1,0 +1,115 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-storage
+  namespace: test
+  labels:
+    app: secure-storage
+spec:
+  runtimeClassName: kata
+  containers:
+  - name: hello-openshift
+    image: quay.io/openshift/origin-hello-openshift
+    ports:
+      - containerPort: 8888
+    lifecycle:
+      postStart:
+        exec:
+          command: ["/bin/sh", "-c", "while [ ! -f /mnt/secure/.ready ]; do sleep 1; done"]
+    securityContext:
+      privileged: false
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true
+      runAsUser: 1001
+      capabilities:
+        drop:
+          - ALL
+      seccompProfile:
+        type: RuntimeDefault
+    volumeMounts:
+    - name: secrets
+      mountPath: /secrets
+    - name: secure-mount
+      mountPath: /mnt/secure
+
+  initContainers:
+  - name: curl
+    image: registry.redhat.io/ubi9/ubi:latest # Lightweight image with curl installed
+    command: ['sh', '-c', 'echo "bananas" > /secrets/kbsres1.txt'] # testing only
+    #command: ['sh', '-c', 'curl -s http://127.0.0.1:8006/cdh/resource/default/kbsres1/key3 > /secrets/kbsres1.txt']
+    volumeMounts:
+    - name: secrets
+      mountPath: /secrets
+
+
+  - name: format-disk
+    image: quay.io/centos/centos:stream9 # try this for now
+    securityContext:
+      privileged: true # scope down!!!!
+    restartPolicy: Always  # Native sidecar!
+    env:
+    - name: POD_UID
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.uid
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        set -e
+        mkdir -p /mnt/secure
+        touch /mnt/secure/.started
+        dnf install -y cryptsetup e2fsprogs # this is a nasty hack
+        PASS=$(cat /secrets/kbsres1.txt)
+        if cryptsetup isLuks /dev/block-device; then
+           echo "device is luks already"
+        else 
+          echo "Formatting device with LUKS"
+          echo -n "$PASS" | cryptsetup luksFormat /dev/block-device -
+        fi
+        if cryptsetup status "$POD_UID" >/dev/null 2>&1; then
+          echo "Device $POD_UID already open" >&2
+          exit 0
+        else
+          echo -n "$PASS" | cryptsetup luksOpen /dev/block-device $POD_UID -
+        fi
+        if ! blkid "/dev/mapper/$POD_UID" | grep -q 'TYPE="ext4"'; then
+            echo "Creating ext4 filesystem on /dev/mapper/blockmapper"
+            mkfs.ext4 "/dev/mapper/$POD_UID"
+        fi
+        echo "Done formatting"
+        mkdir -p /mnt/private
+        mount /dev/mapper/$POD_UID /mnt/secure
+        touch /mnt/secure/.ready
+        echo "Ready"
+        tail -f /dev/null 
+
+    # the lifecycle block is needed on standard pods not coco pod
+    # This is not behaving how I would expect
+    # lifecycle:
+    #   preStop:
+    #     exec:
+    #       command: 
+    #       - /bin/sh
+    #       - -c
+    #       - |
+    #         cryptsetup luksClose $POD_UID || true
+    #         udevadm settle 
+    volumeDevices:
+      - name: csi-block-vol
+        devicePath: /dev/block-device
+    volumeMounts:
+    - name: secrets
+      mountPath: /secrets
+    - name: secure-mount
+      mountPath: /mnt/secure
+      mountPropagation: Bidirectional
+
+  volumes:
+  - name: secrets
+    emptyDir: {}
+  - name: csi-block-vol
+    persistentVolumeClaim:
+      claimName: block-pvc-2
+  - name: secure-mount        # Shared volume definition
+    emptyDir: 
+      medium: Memory           
