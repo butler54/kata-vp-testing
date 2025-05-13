@@ -9,7 +9,7 @@ clusterGroup:
   - openshift-nfd
   - kata-test
   - kata-test-udn:
-      annotations:
+      labels:
         k8s.ovn.org/primary-user-defined-network: ""
   - test
 
