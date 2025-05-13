@@ -9,6 +9,7 @@ clusterGroup:
   - openshift-nfd
   - kata-test
   - kata-test-udn
+  - test
 
   subscriptions:
     acm:
@@ -81,6 +82,12 @@ clusterGroup:
       namespace: openshift-sandboxed-containers-operator
       project: default
       path: charts/all/sandbox
+
+    test:
+      name: test
+      namespace: test
+      project: default
+      path: charts/all/test-workloads
 
   imperative:
     # NOTE: We *must* use lists and not hashes. As hashes lose ordering once parsed by helm
