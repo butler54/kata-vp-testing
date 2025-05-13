@@ -10,6 +10,7 @@ spec:
   initContainers:
   - name: format-disk
     image: quay.io/centos/centos:stream9 # try this for now
+    restartPolicy: Always  # Native sidecar!
     securityContext:
       privileged: true # scope down!!!
     command: ["/bin/sh", "-c"]
@@ -22,18 +23,6 @@ spec:
           echo "creating block device"
           mkfs.xfs /dev/block-device
         fi
-    volumeDevices:
-      - name: csi-block
-        devicePath: /dev/block-device
-  - name: mount-disk 
-    image: quay.io/centos/centos:stream9 # try this for now
-    securityContext:
-      privileged: true # scope down!!!
-    restartPolicy: Always  # Native sidecar!
-    command: ["/bin/sh", "-c"]
-    args:
-      - |
-        set -e
         mkdir -p /mnt/storage
         mount /dev/block-device /mnt/secure
         echo "Ready"
