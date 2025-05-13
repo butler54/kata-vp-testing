@@ -60,33 +60,4 @@ spec:
 
   - name: csi-block
     persistentVolumeClaim:
-      claimName: my-block-volume
-
-
-
-  initContainers:
-    - name: format-device
-      image: busybox
-      command:
-        - sh
-        - -c
-        - |
-          if ! blkid /dev/blockdevice; then
-            mkfs.ext4 /dev/blockdevice
-          else
-            echo "Device already formatted"
-          fi
-      volumeDevices:
-        - name: my-block-volume
-          devicePath: /dev/blockdevice
-  containers:
-    - name: app
-      image: busybox
-      command: ["sleep", "3600"]
-      volumeDevices:
-        - name: my-block-volume
-          devicePath: /dev/blockdevice
-  volumes:
-    - name: my-block-volume
-      persistentVolumeClaim:
-        claimName: my-block-pvc
+      claimName: block-pvc
