@@ -5,18 +5,36 @@ clusterGroup:
   - open-cluster-management
   - vault
   - golang-external-secrets
+  - openshift-sandboxed-containers-operator
+  - openshift-nfd
+  - kata-test
+  - kata-test-udn
+
   subscriptions:
     acm:
       name: advanced-cluster-management
       namespace: open-cluster-management
       channel: release-2.12
       #csv: advanced-cluster-management.v2.6.1
+    sandbox:
+      name: sandboxed-containers-operator
+      namespace: openshift-sandboxed-containers-operator
+      channel: stable
+      version: "1.9.*"
+    nfd:
+      name: nfd
+      namespace: openshift-nfd
+      channel: stable
   projects:
   - hub
   - config-demo
   - hello-world
-  # Explicitly mention the cluster-state based overrides we plan to use for this pattern.
-  # We can use self-referential variables because the chart calls the tpl function with these variables defined
+  - default
+  - plumbing
+
+  - 
+    # Explicitly mention the cluster-state based overrides we plan to use for this pattern.
+    # We can use self-referential variables because the chart calls the tpl function with these variables defined
   sharedValueFiles:
   - '/overrides/values-{{ $.Values.global.clusterPlatform }}.yaml'
   # sharedValueFiles is a flexible mechanism that will add the listed valuefiles to every app defined in the
@@ -59,6 +77,13 @@ clusterGroup:
       project: hub
       chart: golang-external-secrets
       chartVersion: 0.1.*
+
+    sandbox:
+      name: sandbox
+      namespace: openshift-sandboxed-containers-operator
+      project: default
+      path: charts/all/sandbox
+
   imperative:
     # NOTE: We *must* use lists and not hashes. As hashes lose ordering once parsed by helm
     # The default schedule is every 10 minutes: imperative.schedule
