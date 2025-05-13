@@ -17,8 +17,9 @@ spec:
       - |
         set -e
         mkdir -p /mnt/storage
-        dnf install -y cryptsetup e2fsprogs # this is a nasty hack
-        if ! blckid /dev/block-device; then
+        dnf install -y cryptsetup x2fsprogs e2fsprogs # this is a nasty hack
+        if ! blkid /dev/block-device; then
+          echo "creating block device"
           mkfs.xfs /dev/block-device
         fi
     volumeDevices:
