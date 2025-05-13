@@ -55,7 +55,9 @@ spec:
             - ALL
         seccompProfile:
           type: RuntimeDefault
-
+    volumeDevices:
+      - name: csi-block
+        devicePath: /dev/block-device
   volumes:
 
   - name: csi-block
