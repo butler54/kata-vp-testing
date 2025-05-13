@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: katablock
+  namespace: test
+  labels:
+    app: katablock
+spec:
+  runtimeClassName: kata
+  initContainers:
+  - name: format-disk
+    image: quay.io/centos/centos:stream9 # try this for now
+    securityContext:
+      privileged: true # scope down!!!
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        set -e
+        mkdir -p /mnt/storage
+        dnf install -y cryptsetup e2fsprogs # this is a nasty hack
+        if ! blckid /dev/block-device; then
+          mkfs.xfs /dev/block-device
+        fi
+    volumeDevices:
+      - name: csi-block
+        devicePath: /dev/block-device
+  - name: mount-disk 
+    image: quay.io/centos/centos:stream9 # try this for now
+    securityContext:
+      privileged: true # scope down!!!
+    restartPolicy: Always  # Native sidecar!
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        set -e
+        mkdir -p /mnt/storage
+        mount /dev/block-device /mnt/secure
+        echo "Ready"
+        tail -f /dev/null 
+    volumeDevices:
+      - name: csi-block
+        devicePath: /dev/block-device
+  containers:
+    - name: hello-openshift
+      image: quay.io/openshift/origin-hello-openshift
+      ports:
+        - containerPort: 8888
+      securityContext:
+        privileged: false
+        allowPrivilegeEscalation: false
+        runAsNonRoot: true
+        runAsUser: 1001
+        capabilities:
+          drop:
+            - ALL
+        seccompProfile:
+          type: RuntimeDefault
+
+  volumes:
+
+  - name: csi-block
+    persistentVolumeClaim:
+      claimName: my-block-volume
+
+
+
+  initContainers:
+    - name: format-device
+      image: busybox
+      command:
+        - sh
+        - -c
+        - |
+          if ! blkid /dev/blockdevice; then
+            mkfs.ext4 /dev/blockdevice
+          else
+            echo "Device already formatted"
+          fi
+      volumeDevices:
+        - name: my-block-volume
+          devicePath: /dev/blockdevice
+  containers:
+    - name: app
+      image: busybox
+      command: ["sleep", "3600"]
+      volumeDevices:
+        - name: my-block-volume
+          devicePath: /dev/blockdevice
+  volumes:
+    - name: my-block-volume
+      persistentVolumeClaim:
+        claimName: my-block-pvc

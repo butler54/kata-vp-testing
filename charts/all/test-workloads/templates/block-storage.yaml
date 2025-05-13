@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: block-pvc
+  namespace: testr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Block  # Critical for raw block access
+  resources:
+    requests:
+      storage: 1Gi
