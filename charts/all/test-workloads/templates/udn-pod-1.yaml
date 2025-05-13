@@ -5,6 +5,8 @@ metadata:
   namespace: kata-test-udn
   labels:
     app: udn1
+  annotations:
+    k8s.v1.cni.cncf.io/networks: udn-secondary
 spec:
   runtimeClassName: kata
   containers:
