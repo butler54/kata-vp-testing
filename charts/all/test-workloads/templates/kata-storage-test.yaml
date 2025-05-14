@@ -14,10 +14,6 @@ spec:
     image: quay.io/openshift/origin-hello-openshift
     ports:
       - containerPort: 8888
-    lifecycle:
-      postStart:
-        exec:
-          command: ["/bin/sh", "-c", "while [ ! -f /mnt/secure/.ready ]; do sleep 1; done"]
     securityContext:
       privileged: false
       allowPrivilegeEscalation: false
