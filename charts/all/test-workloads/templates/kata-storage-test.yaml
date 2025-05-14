@@ -15,15 +15,7 @@ spec:
     ports:
       - containerPort: 8888
     securityContext:
-      privileged: false
-      allowPrivilegeEscalation: false
-      runAsNonRoot: true
-      runAsUser: 1001
-      capabilities:
-        drop:
-          - ALL
-      seccompProfile:
-        type: RuntimeDefault
+      privileged: true
     volumeMounts:
     - name: secrets
       mountPath: /secrets
