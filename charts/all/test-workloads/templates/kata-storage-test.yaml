@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: secure-storage
+  name: secure-storage-enc
   namespace: test
   labels:
-    app: secure-storage
+    app: secure-storage-enc
 spec:
   runtimeClassName: kata
   containers:
@@ -34,7 +34,7 @@ spec:
 
   initContainers:
   - name: curl
-    image: quay.io/centos/centos:stream9 # Lightweight image with curl installed
+    image: registry.redhat.io/ubi9/ubi:latest # Lightweight image with curl installed
     command: ['sh', '-c', 'echo "bananas" > /secrets/kbsres1.txt'] # testing only
     #command: ['sh', '-c', 'curl -s http://127.0.0.1:8006/cdh/resource/default/kbsres1/key3 > /secrets/kbsres1.txt']
     volumeMounts:
