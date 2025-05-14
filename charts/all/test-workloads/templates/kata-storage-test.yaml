@@ -5,6 +5,8 @@ metadata:
   namespace: test
   labels:
     app: secure-storage-enc
+  annotations:
+    io.katacontainers.config.hypervisor.default_memory: "4096"
 spec:
   runtimeClassName: kata
   containers:
