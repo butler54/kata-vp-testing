@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kata-mount-in-container
+  namespace: test
+  labels:
+    app: kata-mount-in-container
+spec:
+  runtimeClassName: kata
+  initContainers:
+  - name: format-disk
+    image: quay.io/centos/centos:stream9 # try this for now
+    restartPolicy: Always  # Native sidecar    securityContext:
+      privileged: true # scope down!!!
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        set -e
+        mkdir -p /mnt/storage
+        dnf install -y cryptsetup xfsprogs e2fsprogs # this is a nasty hack
+        if ! blkid /dev/block-device; then
+          echo "creating block device"
+          mkfs.xfs /dev/block-device
+        fi
+    volumeDevices:
+      - name: csi-block
+        devicePath: /dev/block-device
+  containers:
+    - name: hello-openshift
+      image: quay.io/openshift/origin-hello-openshift
+      ports:
+        - containerPort: 8888
+      securityContext:
+        privileged: true
+      volumeDevices:
+        - name: csi-block
+          devicePath: /dev/block-device
+      command: ["/bin/sh", "-c"]
+      args:
+        - | 
+          set -e
+          mkdir -p /mnt/secure
+          mount /dev/block-device /mnt/secure
+          /hello-openshift
+      volumeDevices:
+      - name: csi-block
+        devicePath: /dev/block-device
+  containers:
+  volumes:
+
+  - name: csi-block
+    persistentVolumeClaim:
+      claimName: block-pvc-3
