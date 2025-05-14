@@ -10,7 +10,7 @@ spec:
   initContainers:
   - name: format-disk
     image: quay.io/centos/centos:stream9 # try this for now
-    restartPolicy: Always  # Native sidecar    securityContext:
+    securityContext:
       privileged: true # scope down!!!
     command: ["/bin/sh", "-c"]
     args:
@@ -50,4 +50,4 @@ spec:
 
   - name: csi-block
     persistentVolumeClaim:
-      claimName: block-pvc-3
+      claimName: block-pvc

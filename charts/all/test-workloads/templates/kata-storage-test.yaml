@@ -73,17 +73,6 @@ spec:
         echo "Ready"
         tail -f /dev/null 
 
-    # the lifecycle block is needed on standard pods not coco pod
-    # This is not behaving how I would expect
-    # lifecycle:
-    #   preStop:
-    #     exec:
-    #       command: 
-    #       - /bin/sh
-    #       - -c
-    #       - |
-    #         cryptsetup luksClose $POD_UID || true
-    #         udevadm settle 
     volumeDevices:
       - name: csi-block-vol
         devicePath: /dev/block-device
