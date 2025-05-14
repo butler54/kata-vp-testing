@@ -45,9 +45,7 @@ spec:
       volumeDevices:
       - name: csi-block
         devicePath: /dev/block-device
-  containers:
   volumes:
-
   - name: csi-block
     persistentVolumeClaim:
       claimName: block-pvc
