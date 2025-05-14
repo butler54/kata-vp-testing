@@ -7,6 +7,26 @@ metadata:
     app: kata-mount-in-container
 spec:
   runtimeClassName: kata
+  containers:
+  - name: hello-openshift
+    image: quay.io/openshift/origin-hello-openshift
+    ports:
+      - containerPort: 8888
+    securityContext:
+      privileged: true
+    volumeDevices:
+      - name: csi-block
+        devicePath: /dev/block-device
+    command: ["/bin/sh", "-c"]
+    args:
+      - | 
+        set -e
+        mkdir -p /mnt/secure
+        mount /dev/block-device /mnt/secure
+        /hello-openshift
+    volumeDevices:
+    - name: csi-block
+      devicePath: /dev/block-device
   initContainers:
   - name: format-disk
     image: quay.io/centos/centos:stream9 # try this for now
@@ -25,26 +45,7 @@ spec:
     volumeDevices:
       - name: csi-block
         devicePath: /dev/block-device
-  containers:
-    - name: hello-openshift
-      image: quay.io/openshift/origin-hello-openshift
-      ports:
-        - containerPort: 8888
-      securityContext:
-        privileged: true
-      volumeDevices:
-        - name: csi-block
-          devicePath: /dev/block-device
-      command: ["/bin/sh", "-c"]
-      args:
-        - | 
-          set -e
-          mkdir -p /mnt/secure
-          mount /dev/block-device /mnt/secure
-          /hello-openshift
-      volumeDevices:
-      - name: csi-block
-        devicePath: /dev/block-device
+ 
   volumes:
   - name: csi-block
     persistentVolumeClaim:
