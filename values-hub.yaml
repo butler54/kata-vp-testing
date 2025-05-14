@@ -8,6 +8,7 @@ clusterGroup:
   - openshift-sandboxed-containers-operator
   - openshift-nfd
   - kata-test
+  - storage
   - kata-test-udn:
       labels:
         k8s.ovn.org/primary-user-defined-network: ""
@@ -34,6 +35,7 @@ clusterGroup:
   - hello-world
   - default
   - plumbing
+  - storage
     # Explicitly mention the cluster-state based overrides we plan to use for this pattern.
     # We can use self-referential variables because the chart calls the tpl function with these variables defined
   sharedValueFiles:
@@ -90,6 +92,12 @@ clusterGroup:
       namespace: test
       project: default
       path: charts/all/test-workloads
+
+    storage:
+      name: storage
+      namespace: storage
+      project: default
+      path: charts/all/storage
 
   imperative:
     # NOTE: We *must* use lists and not hashes. As hashes lose ordering once parsed by helm

@@ -1,10 +1,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: kata-mount-in-container
-  namespace: test
+  name: iteration
   labels:
-    app: kata-mount-in-container
+    app: iteration
 spec:
   runtimeClassName: kata
   containers:
@@ -22,8 +21,8 @@ spec:
     args:
       - | 
         set -e
-        mkdir -p /mnt/storaga
-        mount /dev/block-device /mnt/storage
+        # mkdir -p /mnt/storage
+        # mount /dev/block-device /mnt/storage
         /hello-openshift
     volumeDevices:
     - name: csi-block
@@ -33,6 +32,7 @@ spec:
     image: quay.io/centos/centos:stream9 # try this for now
     securityContext:
       privileged: true # scope down!!!
+    restartPolicy: Always  # Native sidecar!
     command: ["/bin/sh", "-c"]
     args:
       - |
@@ -43,6 +43,10 @@ spec:
           echo "creating block device"
           mkfs.xfs /dev/block-device
         fi
+        mkdir -p /mnt/storaga
+        mount /dev/block-device /mnt/storage
+        tail -f /dev/null 
+
     volumeDevices:
       - name: csi-block
         devicePath: /dev/block-device
@@ -50,4 +54,16 @@ spec:
   volumes:
   - name: csi-block
     persistentVolumeClaim:
-      claimName: block-pvc
+      claimName: block-iteration
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name:  block-iteration
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Block  # Critical for raw block access
+  resources:
+    requests:
+      storage: 1Gi
