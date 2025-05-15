@@ -30,7 +30,6 @@ spec:
     volumeMounts:
     - name: memory
       mountPath: /mnt/test
-      mountPropagation: Bidirectional
   initContainers:
   - name: format-disk
     image: quay.io/centos/centos:stream9 # try this for now
