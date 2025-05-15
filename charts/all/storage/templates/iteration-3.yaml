@@ -33,7 +33,7 @@ spec:
       - |
         set -e
         dnf install -y cryptsetup xfsprogs e2fsprogs # this is a nasty hack
-        DEVICE=/mnt/block-device
+        DEVICE=/dev/block-device
         MOUNTPOINT=/mnt/storage
         if ! blkid $DEVICE; then
           echo "creating block device"
