@@ -7,8 +7,9 @@ metadata:
     app: nad1
   annotations:
     k8s.v1.cni.cncf.io/networks: l2-network
+    io.katacontainers.config.hypervisor.default_memory: "4096"
 spec:
-  runtimeClassName: kata
+  runtimeClassName: kata-cc
   containers:
     - name: hello-openshift
       image: quay.io/openshift/origin-hello-openshift
