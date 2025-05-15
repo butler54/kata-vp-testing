@@ -46,7 +46,7 @@ spec:
         else
             echo "$DEVICE is already mounted."
         fi
-
+        tail -f /dev/null 
     volumeDevices:
       - name: csi-block
         devicePath: /dev/block-device
