@@ -33,12 +33,19 @@ spec:
       - |
         set -e
         dnf install -y cryptsetup xfsprogs e2fsprogs # this is a nasty hack
-        if ! blkid /dev/block-device; then
+        DEVICE=/mnt/block-device
+        MOUNTPOINT=/mnt/storage
+        if ! blkid $DEVICE; then
           echo "creating block device"
-          mkfs.xfs /dev/block-device
+          mkfs.xfs $DEVICE
         fi
-        mkdir -p /mnt/block
-        mount /dev/block-device /mnt/storage
+        if ! mount | grep -q "$DEVICE"; then
+            sudo mkdir -p "$MOUNTPOINT"
+            sudo mount "$DEVICE" "$MOUNTPOINT"
+            echo "$DEVICE mounted at $MOUNTPOINT"
+        else
+            echo "$DEVICE is already mounted."
+        fi
 
     volumeDevices:
       - name: csi-block
