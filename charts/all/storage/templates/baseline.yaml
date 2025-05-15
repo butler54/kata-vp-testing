@@ -4,8 +4,10 @@ metadata:
   name: baseline
   labels:
     app: baseline
+  annotations:
+    io.katacontainers.config.hypervisor.default_memory: "8192"
 spec:
-  runtimeClassName: kata
+  runtimeClassName: kata-cc
   containers:
   - name: hello-openshift
     image: quay.io/openshift/origin-hello-openshift
@@ -50,15 +52,15 @@ spec:
   - name: csi-block
     persistentVolumeClaim:
       claimName: block-baseline
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name:  block-baseline
-spec:
-  accessModes:
-    - ReadWriteOnce
-  volumeMode: Block  # Critical for raw block access
-  resources:
-    requests:
-      storage: 1Gi
+# ---
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name:  block-baseline
+# spec:
+#   accessModes:
+#     - ReadWriteOnce
+#   volumeMode: Block  # Critical for raw block access
+#   resources:
+#     requests:
+#       storage: 1Gi

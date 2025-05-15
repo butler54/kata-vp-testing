@@ -9,6 +9,7 @@ clusterGroup:
   - openshift-nfd
   - kata-test
   - storage
+  - nad
   - kata-test-udn:
       labels:
         k8s.ovn.org/primary-user-defined-network: ""
@@ -36,6 +37,7 @@ clusterGroup:
   - default
   - plumbing
   - storage
+  - nad
     # Explicitly mention the cluster-state based overrides we plan to use for this pattern.
     # We can use self-referential variables because the chart calls the tpl function with these variables defined
   sharedValueFiles:
@@ -98,7 +100,11 @@ clusterGroup:
       namespace: storage
       project: default
       path: charts/all/storage
-
+    nad:
+      name: nad
+      namespace: nad
+      project: nad
+      path: charts/all/nad
   imperative:
     # NOTE: We *must* use lists and not hashes. As hashes lose ordering once parsed by helm
     # The default schedule is every 10 minutes: imperative.schedule
