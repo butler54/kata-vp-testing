@@ -40,7 +40,7 @@ spec:
         mkdir -p /mnt/block
         mount /dev/block-device /mnt/block
 
-        ln -s /mnt/storage/veneer /mnt/block
+        ln -sf /mnt/storage/veneer /mnt/block
         tail -f /dev/null 
 
     volumeDevices:
