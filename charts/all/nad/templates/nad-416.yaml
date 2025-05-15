@@ -11,6 +11,6 @@ spec:
         "type": "ovn-k8s-cni-overlay",
         "topology":"layer2",
         "mtu": 1300,
-        "netAttachDefName": nad/l2-network"
+        "netAttachDefName": "nad/l2-network"
         "subnets": "10.170.200.0/24",
     }
