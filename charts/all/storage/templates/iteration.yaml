@@ -21,8 +21,8 @@ spec:
     args:
       - | 
         set -e
-        # mkdir -p /mnt/storage
-        # mount /dev/block-device /mnt/storage
+        mkdir -p /mnt/storage
+        mount /dev/block-device /mnt/storage
         /hello-openshift
     volumeDevices:
     - name: csi-block
@@ -47,7 +47,7 @@ spec:
           echo "creating block device"
           mkfs.xfs /dev/block-device
         fi
-        mkdir -p /mnt/storaga
+        mkdir -p /mnt/storage
         mount /dev/block-device /mnt/storage
         tail -f /dev/null 
 
