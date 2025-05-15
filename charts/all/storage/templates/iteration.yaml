@@ -27,6 +27,10 @@ spec:
     volumeDevices:
     - name: csi-block
       devicePath: /dev/block-device
+    volumeMounts:
+    - name: memory
+      mountPath: /mnt/test
+      mountPropagation: Bidirectional
   initContainers:
   - name: format-disk
     image: quay.io/centos/centos:stream9 # try this for now
@@ -50,11 +54,17 @@ spec:
     volumeDevices:
       - name: csi-block
         devicePath: /dev/block-device
- 
+    volumeMounts:
+    - name: memory
+      mountPath: /mnt/test
+      mountPropagation: Bidirectional
   volumes:
   - name: csi-block
     persistentVolumeClaim:
       claimName: block-iteration
+  - name: memory
+    emptyDir:
+      medium: Memory
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
