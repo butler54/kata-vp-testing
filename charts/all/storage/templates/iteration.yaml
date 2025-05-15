@@ -53,10 +53,9 @@ spec:
     volumeDevices:
       - name: csi-block
         devicePath: /dev/block-device
-    # volumeMounts:
-    # - name: memory
-    #   mountPath: /mnt/test
-    #   mountPropagation: Bidirectional
+    volumeMounts:
+    - name: memory
+      mountPath: /mnt/test
   volumes:
   - name: csi-block
     persistentVolumeClaim:
