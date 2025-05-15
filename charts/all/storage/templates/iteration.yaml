@@ -13,7 +13,7 @@ spec:
       - containerPort: 8888
     securityContext:
       privileged: true
-      runAsUser: 0
+#      runAsUser: 0
     volumeDevices:
       - name: csi-block
         devicePath: /dev/block-device
