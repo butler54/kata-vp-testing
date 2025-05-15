@@ -40,8 +40,8 @@ spec:
           mkfs.xfs $DEVICE
         fi
         if ! mount | grep -q "$DEVICE"; then
-            sudo mkdir -p "$MOUNTPOINT"
-            sudo mount "$DEVICE" "$MOUNTPOINT"
+            mkdir -p "$MOUNTPOINT"
+            mount "$DEVICE" "$MOUNTPOINT"
             echo "$DEVICE mounted at $MOUNTPOINT"
         else
             echo "$DEVICE is already mounted."
