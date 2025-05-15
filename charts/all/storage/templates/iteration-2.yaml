@@ -66,10 +66,11 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name:  block-iteration-2
+  name: block-iteration-2
   accessModes:
     - ReadWriteOnce
   volumeMode: Block  # Critical for raw block access
   resources:
     requests:
       storage: 1Gi
+---
