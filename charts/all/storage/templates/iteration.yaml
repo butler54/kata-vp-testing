@@ -21,15 +21,13 @@ spec:
     args:
       - | 
         set -e
-        mkdir -p /mnt/storage
-        mount /dev/block-device /mnt/storage
         /hello-openshift
     volumeDevices:
     - name: csi-block
       devicePath: /dev/block-device
     volumeMounts:
     - name: memory
-      mountPath: /mnt/test
+      mountPath: /mnt/storage
   initContainers:
   - name: format-disk
     image: quay.io/centos/centos:stream9 # try this for now
@@ -55,7 +53,7 @@ spec:
         devicePath: /dev/block-device
     volumeMounts:
     - name: memory
-      mountPath: /mnt/test
+      mountPath: /mnt/storage
   volumes:
   - name: csi-block
     persistentVolumeClaim:
