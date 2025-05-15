@@ -38,10 +38,7 @@ spec:
           mkfs.xfs /dev/block-device
         fi
         mkdir -p /mnt/block
-        mount /dev/block-device /mnt/block
-
-        ln -sf /mnt/storage/veneer /mnt/block
-        tail -f /dev/null 
+        mount /dev/block-device /mnt/storage
 
     volumeDevices:
       - name: csi-block
@@ -49,7 +46,6 @@ spec:
     volumeMounts:
     - name: memory
       mountPath: /mnt/storage
-      mountPropagation: Bidirectional
   volumes:
   - name: csi-block
     persistentVolumeClaim:
