@@ -13,7 +13,7 @@ spec:
       - containerPort: 8888
     securityContext:
       privileged: true
-#      runAsUser: 0
+      runAsUser: 0
     command: ["/bin/sh", "-c"]
     args:
       - | 
@@ -27,6 +27,7 @@ spec:
     image: quay.io/centos/centos:stream9 # try this for now
     securityContext:
       privileged: true # scope down!!!
+      runAsUser: 0
     restartPolicy: Always  # Native sidecar!
     command: ["/bin/sh", "-c"]
     args:
