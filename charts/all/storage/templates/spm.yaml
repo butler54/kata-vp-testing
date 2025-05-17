@@ -26,7 +26,7 @@ spec:
     args:
       - |
         set -e
-        dnf install -y cryptsetup xfsprogs e2fsprogs # this is a nasty hack
+        dnf install -y cryptsetup xfsprogs e2fsprogs procps # this is a nasty hack
         DEVICE=/dev/block-device
         MOUNTPOINT=/mnt/storage
         if ! blkid $DEVICE; then
