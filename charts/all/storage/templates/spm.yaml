@@ -56,7 +56,7 @@ spec:
     volumeMounts:
     - name: memory
       mountPath: /mnt/storage
-      mountPropagation: Bidirectional
+  #    mountPropagation: Bidirectional
   # - name: check-ready
   #   image: registry.access.redhat.com/ubi9/ubi:latest
   #   command: ["/bin/sh", "-c"]
