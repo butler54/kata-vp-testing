@@ -42,26 +42,26 @@ spec:
     volumeDevices:
       - name: csi-block
         devicePath: /dev/block-device
-  - name: check-ready
-    image: registry.access.redhat.com/ubi9/ubi:latest
-    command: ["/bin/sh", "-c"]
-    args:
-      - |
-        set -e 
-        FILE=/mnt/storage/.ready
-        MAX_WAIT=3600 # seconds
-        WAITED=0
+  # - name: check-ready
+  #   image: registry.access.redhat.com/ubi9/ubi:latest
+  #   command: ["/bin/sh", "-c"]
+  #   args:
+  #     - |
+  #       set -e 
+  #       FILE=/mnt/storage/.ready
+  #       MAX_WAIT=3600 # seconds
+  #       WAITED=0
 
-        while [ ! -e "$FILE" ] && [ $WAITED -lt $MAX_WAIT ]; do
-          sleep 1
-          WAITED=$((WAITED + 1))
-        done
+  #       while [ ! -e "$FILE" ] && [ $WAITED -lt $MAX_WAIT ]; do
+  #         sleep 1
+  #         WAITED=$((WAITED + 1))
+  #       done
 
-        if [ -e "$FILE" ]; then
-          exit 0
-        else
-          exit 1
-        fi
+  #       if [ -e "$FILE" ]; then
+  #         exit 0
+  #       else
+  #         exit 1
+  #       fi
   volumes:
   - name: csi-block
     persistentVolumeClaim:
