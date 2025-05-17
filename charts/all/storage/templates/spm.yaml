@@ -18,7 +18,7 @@ spec:
     volumeMounts:
     - name: memory
       mountPath: /mnt/storage
-      mountPropagation: Bidirectional
+      # mountPropagation: Bidirectional
   initContainers:
   - name: format-disk
     image: quay.io/centos/centos:stream9 # try this for now
@@ -44,7 +44,7 @@ spec:
             echo "$DEVICE mounted at $MOUNTPOINT"
             mkdir -p $TARGETPOINT/persistent-data
             chmod 777 $TARGETPOINT/persistent-data
-            mount --bind $MOUNTPOINT $TARGETPOINT/persistent-data
+            mount --rbind $MOUNTPOINT $TARGETPOINT/persistent-data
 
         else
             echo "$DEVICE is already mounted."
