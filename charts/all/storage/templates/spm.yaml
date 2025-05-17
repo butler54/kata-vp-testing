@@ -8,9 +8,10 @@ spec:
   runtimeClassName: kata
   shareProcessNamespace: true
   containers:
+
+  - name: hello-openshift
     securityContext:
       privileged: true # scope down!!!
-  - name: hello-openshift
     image: quay.io/openshift/origin-hello-openshift
     ports:
       - containerPort: 8888
