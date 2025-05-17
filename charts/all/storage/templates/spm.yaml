@@ -12,9 +12,6 @@ spec:
     image: quay.io/openshift/origin-hello-openshift
     ports:
       - containerPort: 8888
-    volumeMounts:
-    - name: memory
-      mountPath: /mnt/storage
   initContainers:
   - name: format-disk
     image: quay.io/centos/centos:stream9 # try this for now
@@ -45,9 +42,7 @@ spec:
     volumeDevices:
       - name: csi-block
         devicePath: /dev/block-device
-    volumeMounts:
-    - name: memory
-      mountPath: /mnt/storage
+
   # - name: check-ready
   #   image: registry.access.redhat.com/ubi9/ubi:latest
   #   command: ["/bin/sh", "-c"]
