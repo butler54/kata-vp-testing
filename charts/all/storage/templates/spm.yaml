@@ -39,7 +39,9 @@ spec:
             mount "$DEVICE" "$MOUNTPOINT"
             echo "$DEVICE mounted at $MOUNTPOINT"
             mkdir -p $TARGETPOINT/persistent-data
+            chown 777 $TARGETPOINT/persistent-data
             mount --bind $MOUNTPOINT $TARGETPOINT/persistent-data
+
         else
             echo "$DEVICE is already mounted."
         fi
