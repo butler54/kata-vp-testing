@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: spm
+  labels:
+    app: spm
+spec:
+  runtimeClassName: kata
+  shareProcessNamespace: true
+  containers:
+  - name: hello-openshift
+    image: quay.io/openshift/origin-hello-openshift
+    ports:
+      - containerPort: 8888
+  initContainers:
+  - name: format-disk
+    image: quay.io/centos/centos:stream9 # try this for now
+    securityContext:
+      privileged: true # scope down!!!
+      runAsUser: 0
+    restartPolicy: Always  # Native sidecar!
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        set -e
+        dnf install -y cryptsetup xfsprogs e2fsprogs # this is a nasty hack
+        DEVICE=/dev/block-device
+        MOUNTPOINT=/mnt/storage
+        if ! blkid $DEVICE; then
+          echo "creating block device"
+          mkfs.xfs $DEVICE
+        fi
+        if ! mount | grep -q "$DEVICE"; then
+            mkdir -p "$MOUNTPOINT"
+            mount "$DEVICE" "$MOUNTPOINT"
+            echo "$DEVICE mounted at $MOUNTPOINT"
+            touch $MOUNTPOINT/.ready
+        else
+            echo "$DEVICE is already mounted."
+        fi
+        tail -f /dev/null
+    volumeDevices:
+      - name: csi-block
+        devicePath: /dev/block-device
+  - name: check-ready
+    image: registry.access.redhat.com/ubi9/ubi:latest
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        set -e 
+        FILE=/mnt/storage/.ready
+        MAX_WAIT=3600 # seconds
+        WAITED=0
+
+        while [ ! -e "$FILE" ] && [ $WAITED -lt $MAX_WAIT ]; do
+          sleep 1
+          WAITED=$((WAITED + 1))
+        done
+
+        if [ -e "$FILE" ]; then
+          exit 0
+        else
+          exit 1
+        fi
+  volumes:
+  - name: csi-block
+    persistentVolumeClaim:
+      claimName: spm
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: spm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Block  # Critical for raw block access
+  resources:
+    requests:
+      storage: 1Gi
+---
