@@ -39,7 +39,7 @@ spec:
             mount "$DEVICE" "$MOUNTPOINT"
             echo "$DEVICE mounted at $MOUNTPOINT"
             mkdir -p $TARGETPOINT/persistent-data
-            chown 777 $TARGETPOINT/persistent-data
+            chmod 777 $TARGETPOINT/persistent-data
             mount --bind $MOUNTPOINT $TARGETPOINT/persistent-data
 
         else
