@@ -66,12 +66,14 @@ spec:
       - |
         set -e 
         FILE=$(eval $DATA_PROC_DIR)/root/mnt/storage/.ready
+        echo $FILE
         MAX_WAIT=3600 # seconds
         WAITED=0
 
         while [ ! -e "$FILE" ] && [ $WAITED -lt $MAX_WAIT ]; do
           sleep 1
           WAITED=$((WAITED + 1))
+          echo $WAITED
         done
 
         if [ -e "$FILE" ]; then
