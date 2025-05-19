@@ -20,7 +20,7 @@ spec:
           command:
             - /bin/sh
             - -c
-            - ln -s $(eval $DATA_PROC_DIR)/root/mnt/storage /data
+            - ln -s $(eval $DATA_PROC_DIR)/root/mnt/storage $DATA_DIR
     securityContext:
       privileged: true # scope down!!!
     image: quay.io/openshift/origin-hello-openshift
