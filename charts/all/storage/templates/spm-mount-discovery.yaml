@@ -58,10 +58,12 @@ spec:
         devicePath: /dev/block-device
   - name: check-ready
     image: registry.access.redhat.com/ubi9/ubi:latest
-    command: ["/bin/sh", "-c"]
+    securityContext:
+      privileged: true # scope down!!!
     env:
       - name: DATA_PROC_DIR
         value: 'find /proc -maxdepth 1 -type d -regex "/proc/[0-9]*" | head -2 | tail -1'
+    command: ["/bin/sh", "-c"]
     args:
       - |
         set -e 
