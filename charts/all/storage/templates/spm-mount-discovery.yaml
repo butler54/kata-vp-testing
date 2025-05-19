@@ -14,13 +14,13 @@ spec:
         value: 'find /proc -maxdepth 1 -type d -regex "/proc/[0-9]*" | head -2 | tail -1'
       - name: DATA_DIR
         value: /data
-    lifecycle:
-      postStart:
-        exec:
-          command:
-            - /bin/sh
-            - -c
-            - ln -s $(eval $DATA_PROC_DIR)/root/mnt/storage $DATA_DIR
+    # lifecycle:
+    #   postStart:
+    #     exec:
+    #       command:
+    #         - /bin/sh
+    #         - -c
+    #         - ln -s $(eval $DATA_PROC_DIR)/root/mnt/storage $DATA_DIR
     securityContext:
       privileged: true # scope down!!!
     image: quay.io/openshift/origin-hello-openshift
