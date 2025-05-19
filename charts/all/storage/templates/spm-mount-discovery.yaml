@@ -65,7 +65,7 @@ spec:
     args:
       - |
         set -e 
-        FILE=$DATA_PROC_DIR/root/mnt/storage/.ready
+        FILE=$(eval $DATA_PROC_DIR)/root/mnt/storage/.ready
         MAX_WAIT=3600 # seconds
         WAITED=0
 
