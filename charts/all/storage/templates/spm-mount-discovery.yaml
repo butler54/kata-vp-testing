@@ -84,7 +84,6 @@ spec:
         else
           exit 1
         fi
-        tail -f /dev/null
   volumes:
   - name: csi-block
     persistentVolumeClaim:
