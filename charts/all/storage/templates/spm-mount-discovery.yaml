@@ -1,0 +1,102 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: spm-mount-discovery
+  labels:
+    app: spm-mount-discovery
+spec:
+  runtimeClassName: kata
+  shareProcessNamespace: true
+  containers:
+  - name: hello-openshift
+    env:
+      - name: DATA_PROC_DIR
+        value: 'find /proc -maxdepth 1 -type d -regex "/proc/[0-9]*" | head -2 | tail -1'
+      - name: DATA_DIR
+        value: /data
+    lifecycle:
+      postStart:
+        exec:
+          command:
+            - /bin/sh
+            - -c
+            - |
+              chmod ug+w $(dirname $DATA_DIR) 
+              ln -s $(eval $DATA_PROC_DIR)/root/mnt/storage $DATA_DIR
+    securityContext:
+      privileged: true # scope down!!!
+    image: quay.io/openshift/origin-hello-openshift
+    ports:
+      - containerPort: 8888
+  initContainers:
+  - name: format-disk
+    image: quay.io/rh-ee-chbutler/ubi-storage-util:latest
+    securityContext:
+      privileged: true # scope down!!!
+    restartPolicy: Always  # Native sidecar!
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        set -e
+        DEVICE=/dev/block-device
+        TARGETPOINT=/mnt/storage
+        if ! blkid $DEVICE; then
+          echo "creating block device"
+          mkfs.xfs $DEVICE
+        fi
+        if ! mount | grep -q "$DEVICE"; then
+            mkdir -p "$TARGETPOINT"
+            mount "$DEVICE" "$TARGETPOINT"
+            echo "$DEVICE mounted at $TARGETPOINT"
+        else
+            echo "$DEVICE is already mounted."
+        fi
+        touch $TARGETPOINT/.ready
+        tail -f /dev/null
+    volumeDevices:
+      - name: csi-block
+        devicePath: /dev/block-device
+  - name: check-ready
+    image: registry.access.redhat.com/ubi9/ubi:latest
+    securityContext:
+      privileged: true # scope down!!!
+    env:
+      - name: DATA_PROC_DIR
+        value: 'find /proc -maxdepth 1 -type d -regex "/proc/[0-9]*" | head -2 | tail -1'
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        set -e 
+        FILE=$(eval $DATA_PROC_DIR)/root/mnt/storage/.ready
+        echo $FILE
+        MAX_WAIT=3600 # seconds
+        WAITED=0
+
+        while [ ! -e "$FILE" ] && [ $WAITED -lt $MAX_WAIT ]; do
+          sleep 1
+          WAITED=$((WAITED + 1))
+          echo $WAITED
+        done
+
+        if [ -e "$FILE" ]; then
+          exit 0
+        else
+          exit 1
+        fi
+  volumes:
+  - name: csi-block
+    persistentVolumeClaim:
+      claimName: mount-discovery
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mount-discovery
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Block  # Critical for raw block access
+  resources:
+    requests:
+      storage: 1Gi
+---
