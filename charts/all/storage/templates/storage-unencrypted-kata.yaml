@@ -30,15 +30,15 @@ spec:
         value: 'find /proc -maxdepth 1 -type d -regex "/proc/[0-9]*" | head -2 | tail -1' # finds the process for the sidecar
       - name: DATA_DIR # change this dir to meet your apps's requirements.
         value: /data
-    # lifecycle:
-    #   postStart:
-    #     exec:
-    #       command:
-    #         - /bin/sh
-    #         - -c
-    #         - |
-    #           chmod +w $(dirname $DATA_DIR)
-    #           ln -s $(eval $DATA_PROC_DIR)/root/mnt/storage $DATA_DIR 
+    lifecycle:
+      postStart:
+        exec:
+          command:
+            - /bin/sh
+            - -c
+            - |
+              chmod ug+w $(dirname $DATA_DIR)
+              ln -s $(eval $DATA_PROC_DIR)/root/mnt/storage $DATA_DIR 
     securityContext: 
       privileged: true # security must be elevated, however, it's within the kata vim
     image: quay.io/openshift/origin-hello-openshift
