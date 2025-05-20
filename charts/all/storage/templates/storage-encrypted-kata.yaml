@@ -51,10 +51,6 @@ spec:
       privileged: true 
     restartPolicy: Always  # Native sidecar so it doesn't block boot
     env:
-    - name: POD_UID
-      valueFrom:
-        fieldRef:
-          fieldPath: metadata.uid
     # Non-coco secret
     # - name: MY_SECRET_KEY
     #   valueFrom:
@@ -79,17 +75,17 @@ spec:
           echo "Formatting device with LUKS"
           echo -n "$PASS" | cryptsetup luksFormat $DEVICE -
         fi
-        if cryptsetup status "$POD_UID" >/dev/null 2>&1; then
-          echo "Device $POD_UID already open" >&2
+        if cryptsetup status "mapper" >/dev/null 2>&1; then
+          echo "Device mapper already open" >&2
         else
-          echo -n "$PASS" | cryptsetup luksOpen /dev/block-device $POD_UID -
+          echo -n "$PASS" | cryptsetup luksOpen /dev/block-device mapper -
         fi
-        if ! blkid "/dev/mapper/$POD_UID" | grep -q 'TYPE="xfs"'; then
+        if ! blkid "/dev/mapper/mapper" | grep -q 'TYPE="xfs"'; then
             echo "Creating xfs filesystem on
-            mkfs.xfs "/dev/mapper/$POD_UID"
+            mkfs.xfs "/dev/mapper/mapper"
         fi
         echo "Done formatting"
-        mount /dev/mapper/$POD_UID $TARGETPOINT
+        mount /dev/mapper/mapper $TARGETPOINT
         touch $TARGETPOINT/.ready
         tail -f /dev/null
 
