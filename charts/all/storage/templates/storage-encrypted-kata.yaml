@@ -64,11 +64,11 @@ spec:
     command: ["/bin/sh", "-c"]
     args:
       - |
-        set -e # error out
+        set -ex # error out
         DEVICE=/dev/block-device
         TARGETPOINT=/mnt/storage
 
-        PASS=$(eval $RETRIEVE_SECRET)
+        PASS=bananas
         if cryptsetup isLuks $DEVICE; then
            echo "device is luks already"
         else 
@@ -80,9 +80,14 @@ spec:
         else
           echo -n "$PASS" | cryptsetup luksOpen /dev/block-device mapper -
         fi
-        if ! blkid "/dev/mapper/mapper" | grep -q 'TYPE="xfs"'; then
-            echo "Creating xfs filesystem on
-            mkfs.xfs "/dev/mapper/mapper"
+
+        FS_TYPE=$(blkid -o value -s TYPE $DEVICE || echo "none") 
+        echo "Detected filesystem type: $FS_TYPE"
+        if [ "$FS_TYPE" != "xfs" ]; then
+            echo "formatting device"
+            mkfs.xfs /dev/mapper/mapper
+        else
+            echo "device already formatted"
         fi
         echo "Done formatting"
         mount /dev/mapper/mapper $TARGETPOINT
