@@ -20,8 +20,9 @@ spec:
           command:
             - /bin/sh
             - -c
-            - chmod +w $(dirname $DATA_DIR) # safety first
-            - ln -s $(eval $DATA_PROC_DIR)/root/mnt/storage $DATA_DIR
+            - |
+              chmod +w $(dirname $DATA_DIR) # safety first
+              ln -s $(eval $DATA_PROC_DIR)/root/mnt/storage $DATA_DIR
     securityContext:
       privileged: true # scope down!!!
     image: quay.io/openshift/origin-hello-openshift
