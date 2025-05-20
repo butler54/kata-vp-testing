@@ -36,7 +36,9 @@ spec:
           command:
             - /bin/sh
             - -c
-            - chmod +w $(dirname $DATA_DIR) && ln -s $(eval $DATA_PROC_DIR)/root/mnt/storage $DATA_DIR 
+            - |
+              chmod +w $(dirname $DATA_DIR)
+              ln -s $(eval $DATA_PROC_DIR)/root/mnt/storage $DATA_DIR 
     securityContext: 
       privileged: true # security must be elevated, however, it's within the kata vim
     image: quay.io/openshift/origin-hello-openshift
