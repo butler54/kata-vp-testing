@@ -47,8 +47,6 @@ spec:
             mkdir -p "$TARGETPOINT"
             mount "$DEVICE" "$TARGETPOINT"
             echo "$DEVICE mounted at $TARGETPOINT"
-
-
         else
             echo "$DEVICE is already mounted."
         fi
