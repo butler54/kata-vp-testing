@@ -21,7 +21,8 @@ spec:
             - /bin/sh
             - -c
             - |
-              chmod +w $(dirname $DATA_DIR) # safety first
+              set -e
+              chmod +w $(dirname $DATA_DIR) 
               ln -s $(eval $DATA_PROC_DIR)/root/mnt/storage $DATA_DIR
     securityContext:
       privileged: true # scope down!!!
