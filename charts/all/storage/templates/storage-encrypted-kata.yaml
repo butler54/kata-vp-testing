@@ -51,6 +51,10 @@ spec:
       privileged: true 
     restartPolicy: Always  # Native sidecar so it doesn't block boot
     env:
+    - name: POD_UID
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.uid
     # Non-coco secret
     # - name: MY_SECRET_KEY
     #   valueFrom:
