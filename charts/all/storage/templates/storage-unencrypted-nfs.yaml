@@ -23,7 +23,7 @@ metadata:
   annotations:
     io.katacontainers.config.hypervisor.default_memory: "16192"
 spec:
-  runtimeClassName: kata-cc
+  runtimeClassName: kata
   shareProcessNamespace: true # This is critical to allow access to containers 
   containers:
   - name: hello-openshift
@@ -58,17 +58,8 @@ spec:
         set -e # error out
         DEVICE=/dev/block-device
         TARGETPOINT=/mnt/storage
-        if ! blkid $DEVICE; then
-          echo "creating block device"
-          mkfs.xfs $DEVICE
-        fi
-        if ! mount | grep -q "$DEVICE"; then
-            mkdir -p "$TARGETPOINT"
-            mount "$DEVICE" "$TARGETPOINT"
-            echo "$DEVICE mounted at $TARGETPOINT"
-        else
-            echo "$DEVICE is already mounted."
-        fi
+        mkdir -p $TARGETPOINT
+        sudo mount -t nfs 10.10.10.2:/srv/a /mnt/storage
         touch $TARGETPOINT/.ready
         tail -f /dev/null
     volumeDevices:
