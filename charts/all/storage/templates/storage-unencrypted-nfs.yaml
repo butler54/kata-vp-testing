@@ -59,7 +59,7 @@ spec:
         ip a
         TARGETPOINT=/mnt/storage
         mkdir -p $TARGETPOINT
-        mount -t nfs 10.10.10.2:/srv/a /mnt/storage
+        mount -t nfs 10.10.10.2:/srv/a $TARGETPOINT
         touch $TARGETPOINT/.ready
         tail -f /dev/null
   - name: check-ready # this container is used to make sure the formatting is done before the main container is launched.
