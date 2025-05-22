@@ -17,9 +17,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: storage-unencrypted
+  name: storage-unencrypted-nfs
   labels:
-    app: storage-unencrypted
+    app: storage-unencrypted-nfs
   annotations:
     io.katacontainers.config.hypervisor.default_memory: "8096"
 spec:
@@ -56,15 +56,11 @@ spec:
     args:
       - |
         set -e # error out
-        DEVICE=/dev/block-device
         TARGETPOINT=/mnt/storage
         mkdir -p $TARGETPOINT
         sudo mount -t nfs 10.10.10.2:/srv/a /mnt/storage
         touch $TARGETPOINT/.ready
         tail -f /dev/null
-    volumeDevices:
-      - name: csi-block
-        devicePath: /dev/block-device # Don't change the device path.
   - name: check-ready # this container is used to make sure the formatting is done before the main container is launched.
     image: registry.access.redhat.com/ubi9/ubi:latest # THis is just using standard linux utils. Could be a different container
     securityContext:
@@ -92,20 +88,3 @@ spec:
           echo "Timed out"
           exit 1
         fi
-  volumes:
-  - name: csi-block 
-    persistentVolumeClaim:
-      claimName: storage-unencrypted 
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: storage-unencrypted 
-spec:
-  accessModes:
-    - ReadWriteOnce
-  volumeMode: Block  # Critical for raw block access
-  resources:
-    requests:
-      storage: 1Gi
----
