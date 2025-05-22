@@ -21,7 +21,7 @@ metadata:
   labels:
     app: storage-unencrypted
   annotations:
-    io.katacontainers.config.hypervisor.default_memory: "16192"
+    io.katacontainers.config.hypervisor.default_memory: "8096"
 spec:
   runtimeClassName: kata
   shareProcessNamespace: true # This is critical to allow access to containers 

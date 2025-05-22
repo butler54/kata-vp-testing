@@ -23,7 +23,7 @@ metadata:
   annotations:
     io.katacontainers.config.hypervisor.default_memory: "16192"
 spec:
-  runtimeClassName: kata-cc
+  runtimeClassName: kata
   shareProcessNamespace: true # This is critical to allow access to containers 
   containers:
   - name: hello-openshift
