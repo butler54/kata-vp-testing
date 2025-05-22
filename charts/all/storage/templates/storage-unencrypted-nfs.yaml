@@ -58,7 +58,7 @@ spec:
         set -e # error out
         TARGETPOINT=/mnt/storage
         mkdir -p $TARGETPOINT
-        sudo mount -t nfs 10.10.10.2:/srv/a /mnt/storage
+        mount -t nfs 10.10.10.2:/srv/a /mnt/storage
         touch $TARGETPOINT/.ready
         tail -f /dev/null
   - name: check-ready # this container is used to make sure the formatting is done before the main container is launched.
