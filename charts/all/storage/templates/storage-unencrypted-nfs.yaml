@@ -32,17 +32,17 @@ spec:
         value: 'find /proc -maxdepth 1 -type d -regex "/proc/[0-9]*" | head -2 | tail -1' # finds the process for the sidecar
       - name: DATA_DIR # change this dir to meet your apps's requirements.
         value: /data
-    lifecycle:
-      postStart:
-        exec:
-          command:
-            - /bin/sh
-            - -c
-            - |
-              chmod ug+w $(dirname $DATA_DIR)
-              ln -s $(eval $DATA_PROC_DIR)/root/mnt/storage $DATA_DIR 
+    # lifecycle:
+    #   postStart:
+    #     exec:
+    #       command:
+    #         - /bin/sh
+    #         - -c
+    #         - |
+    #           chmod ug+w $(dirname $DATA_DIR)
+    #           ln -s $(eval $DATA_PROC_DIR)/root/mnt/storage $DATA_DIR 
     securityContext: 
-      privileged: true # security must be elevated, however, it's within the kata vim
+      privileged: true # security must be elevated, however, it's within the kata vm
     image: quay.io/openshift/origin-hello-openshift
     ports:
       - containerPort: 8888
@@ -57,9 +57,10 @@ spec:
       - |
         set -ex # error out
         ip a
+        cat /proc/modules
         TARGETPOINT=/mnt/storage
         mkdir -p $TARGETPOINT
-        mount -t nfs 10.10.10.2:/srv/a $TARGETPOINT
+        mount -t nfs 10.8.1.186:/mnt/myshareddir $TARGETPOINT
         touch $TARGETPOINT/.ready
         tail -f /dev/null
   - name: check-ready # this container is used to make sure the formatting is done before the main container is launched.
