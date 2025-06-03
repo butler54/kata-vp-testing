@@ -1,0 +1,21 @@
+apiVersion: k8s.cni.cncf.io/v1beta1
+kind: MultiNetworkPolicy
+metadata:
+  name: egress-ipblock
+  namespace: ripple
+  annotations:
+    k8s.v1.cni.cncf.io/policy-for: ripple/hsmnetwork
+
+spec:
+  podSelector:
+    matchLabels:
+      app: hello2
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 10.0.1.5/32 # Replace with your destination IP
+    ports:
+    - protocol: TCP
+      port: 22

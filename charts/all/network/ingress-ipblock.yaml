@@ -1,0 +1,19 @@
+apiVersion: k8s.cni.cncf.io/v1beta1
+kind: MultiNetworkPolicy
+metadata:
+  name: ingress-ipblock
+  namespace: ripple
+  annotations:
+    k8s.v1.cni.cncf.io/policy-for: ripple/hsmnetwork
+
+spec:
+  podSelector:
+    matchLabels:
+      app: hello1
+  ingress:
+  - from:
+    - ipBlock:
+        cidr: 10.0.1.4/32
+    ports:
+    - protocol: TCP
+      port: 8888

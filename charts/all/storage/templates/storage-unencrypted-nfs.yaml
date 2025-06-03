@@ -23,7 +23,7 @@ metadata:
   annotations:
     io.katacontainers.config.hypervisor.default_memory: "8096"
 spec:
-  runtimeClassName: kata
+  runtimeClassName: kata-cc
   shareProcessNamespace: true # This is critical to allow access to containers 
   containers:
   - name: hello-openshift
@@ -60,7 +60,7 @@ spec:
         cat /proc/modules
         TARGETPOINT=/mnt/storage
         mkdir -p $TARGETPOINT
-        mount -t nfs 10.10.10.2:/srv/a $TARGETPOINT
+        mount -t nfs 10.8.1.186:/mnt/myshareddir $TARGETPOINT
         touch $TARGETPOINT/.ready
         tail -f /dev/null
   - name: check-ready # this container is used to make sure the formatting is done before the main container is launched.

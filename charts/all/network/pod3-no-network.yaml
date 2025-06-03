@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hello3
+  namespace: ripple
+spec:
+  containers:
+  - name: hello-openshift
+    image: quay.io/openshift/origin-hello-openshift
+    ports:
+    - containerPort: 8888
+    imagePullPolicy: IfNotPresent

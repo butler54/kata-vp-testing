@@ -1,0 +1,32 @@
+apiVersion: nmstate.io/v1
+kind: NodeNetworkConfigurationPolicy
+metadata:
+  name: bond1-enp10s0-enp11s0
+spec:
+  nodeSelector:
+    node-role.kubernetes.io/worker: ""
+  desiredState:
+    interfaces:
+    - name: bond1
+      type: bond
+      state: up
+      ipv4:
+        dhcp: false
+        enabled: true
+      link-aggregation:
+        mode: active-backup # Testing only
+        #mode: 802.3ad LACP
+        port:
+        # matches below
+        - enp10s0
+        - enp11s0
+        options:
+          # Add this section
+          miimon: "100" # MII link monitoring in milliseconds - 
+    # Matches above
+    - name: enp10s0
+      type: ethernet
+      state: up
+    - name: enp11s0
+      type: ethernet
+      state: up
