@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: coco-demo-ghcr
+  namespace: coco-secured
+  labels:
+    app: coco-demo-ghcr
+  annotations:
+    io.katacontainers.config.hypervisor.default_vcpus: "2"
+    io.katacontainers.config.hypervisor.default_memory: "4096"
+    io.katacontainers.config.runtime.create_container_timeout: "600"
+
+spec:
+  runtimeClassName: kata-cc
+  containers:
+    - name: coco-demo
+      image: ghcr.io/butler54/ubi:latest
+      command:
+        - sleep
+        - "36000"
+      securityContext:
+        privileged: false
+        seccompProfile:
+          type: RuntimeDefault
+      volumeMounts:
+        - name: keys
+          mountPath: /keys
+  volumes:
+    - name: keys
+      emptyDir:
+        medium: Memory

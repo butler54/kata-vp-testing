@@ -1,0 +1,240 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    io.katacontainers.config.hypervisor.default_memory: "16192"
+    k8s.ovn.org/pod-networks: '{"default":{"ip_addresses":["10.128.0.115/23"],"mac_address":"0a:58:0a:80:00:73","gateway_ips":["10.128.0.1"],"routes":[{"dest":"10.128.0.0/14","nextHop":"10.128.0.1"},{"dest":"172.30.0.0/16","nextHop":"10.128.0.1"},{"dest":"169.254.169.5/32","nextHop":"10.128.0.1"},{"dest":"100.64.0.0/16","nextHop":"10.128.0.1"}],"ip_address":"10.128.0.115/23","gateway_ip":"10.128.0.1"}}'
+    k8s.v1.cni.cncf.io/network-status: |-
+      [{
+          "name": "ovn-kubernetes",
+          "interface": "eth0",
+          "ips": [
+              "10.128.0.115"
+          ],
+          "mac": "0a:58:0a:80:00:73",
+          "default": true,
+          "dns": {}
+      }]
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Pod","metadata":{"annotations":{"io.katacontainers.config.hypervisor.default_memory":"16192"},"labels":{"app":"storage-unencrypted"},"name":"storage-unencrypted","namespace":"default"},"spec":{"containers":[{"env":[{"name":"DATA_PROC_DIR","value":"find /proc -maxdepth 1 -type d -regex \"/proc/[0-9]*\" | head -2 | tail -1"},{"name":"DATA_DIR","value":"/data"}],"image":"quay.io/openshift/origin-hello-openshift","lifecycle":{"postStart":{"exec":{"command":["/bin/sh","-c","chmod ug+w $(dirname $DATA_DIR)\nln -s $(eval $DATA_PROC_DIR)/root/mnt/storage $DATA_DIR \n"]}}},"name":"hello-openshift","ports":[{"containerPort":8888}],"securityContext":{"privileged":true}}],"initContainers":[{"args":["set -e # error out\nDEVICE=/dev/block-device\nTARGETPOINT=/mnt/storage\nif ! blkid $DEVICE; then\n  echo \"creating block device\"\n  mkfs.xfs $DEVICE\nfi\nif ! mount | grep -q \"$DEVICE\"; then\n    mkdir -p \"$TARGETPOINT\"\n    mount \"$DEVICE\" \"$TARGETPOINT\"\n    echo \"$DEVICE mounted at $TARGETPOINT\"\nelse\n    echo \"$DEVICE is already mounted.\"\nfi\ntouch $TARGETPOINT/.ready\ntail -f /dev/null\n"],"command":["/bin/sh","-c"],"image":"quay.io/rh-ee-chbutler/ubi-storage-util:latest","name":"format-disk","restartPolicy":"Always","securityContext":{"privileged":true},"volumeDevices":[{"devicePath":"/dev/block-device","name":"csi-block"}]},{"args":["set -e \nFILE=$(eval $DATA_PROC_DIR)/root/mnt/storage/.ready\necho $FILE\nMAX_WAIT=3600 # seconds\nWAITED=0\n\nwhile [ ! -e \"$FILE\" ] \u0026\u0026 [ $WAITED -lt $MAX_WAIT ]; do\n  sleep 1\n  WAITED=$((WAITED + 1))\n  echo \"Waited: ${WAITED} s\"\ndone\nif [ -e \"$FILE\" ]; then\n  exit 0\nelse\n  echo \"Timed out\"\n  exit 1\nfi\n"],"command":["/bin/sh","-c"],"env":[{"name":"DATA_PROC_DIR","value":"find /proc -maxdepth 1 -type d -regex \"/proc/[0-9]*\" | head -2 | tail -1"}],"image":"registry.access.redhat.com/ubi9/ubi:latest","name":"check-ready","securityContext":{"privileged":true}}],"runtimeClassName":"kata-cc","shareProcessNamespace":true,"volumes":[{"name":"csi-block","persistentVolumeClaim":{"claimName":"storage-unencrypted"}}]}}
+  creationTimestamp: "2025-05-22T08:06:15Z"
+  labels:
+    app: storage-unencrypted
+  name: storage-unencrypted
+  namespace: default
+  resourceVersion: "368206"
+  uid: b78600d2-2744-4661-8044-5bb837a49cef
+spec:
+  containers:
+  - env:
+    - name: DATA_PROC_DIR
+      value: find /proc -maxdepth 1 -type d -regex "/proc/[0-9]*" | head -2 | tail
+        -1
+    - name: DATA_DIR
+      value: /data
+    image: quay.io/openshift/origin-hello-openshift
+    imagePullPolicy: Always
+    lifecycle:
+      postStart:
+        exec:
+          command:
+          - /bin/sh
+          - -c
+          - "chmod ug+w $(dirname $DATA_DIR)\nln -s $(eval $DATA_PROC_DIR)/root/mnt/storage
+            $DATA_DIR \n"
+    name: hello-openshift
+    ports:
+    - containerPort: 8888
+      protocol: TCP
+    resources: {}
+    securityContext:
+      privileged: true
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-q48vg
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  initContainers:
+  - args:
+    - |
+      set -e # error out
+      DEVICE=/dev/block-device
+      TARGETPOINT=/mnt/storage
+      if ! blkid $DEVICE; then
+        echo "creating block device"
+        mkfs.xfs $DEVICE
+      fi
+      if ! mount | grep -q "$DEVICE"; then
+          mkdir -p "$TARGETPOINT"
+          mount "$DEVICE" "$TARGETPOINT"
+          echo "$DEVICE mounted at $TARGETPOINT"
+      else
+          echo "$DEVICE is already mounted."
+      fi
+      touch $TARGETPOINT/.ready
+      tail -f /dev/null
+    command:
+    - /bin/sh
+    - -c
+    image: quay.io/rh-ee-chbutler/ubi-storage-util:latest
+    imagePullPolicy: Always
+    name: format-disk
+    resources: {}
+    restartPolicy: Always
+    securityContext:
+      privileged: true
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeDevices:
+    - devicePath: /dev/block-device
+      name: csi-block
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-q48vg
+      readOnly: true
+  - args:
+    - "set -e \nFILE=$(eval $DATA_PROC_DIR)/root/mnt/storage/.ready\necho $FILE\nMAX_WAIT=3600
+      # seconds\nWAITED=0\n\nwhile [ ! -e \"$FILE\" ] && [ $WAITED -lt $MAX_WAIT ];
+      do\n  sleep 1\n  WAITED=$((WAITED + 1))\n  echo \"Waited: ${WAITED} s\"\ndone\nif
+      [ -e \"$FILE\" ]; then\n  exit 0\nelse\n  echo \"Timed out\"\n  exit 1\nfi\n"
+    command:
+    - /bin/sh
+    - -c
+    env:
+    - name: DATA_PROC_DIR
+      value: find /proc -maxdepth 1 -type d -regex "/proc/[0-9]*" | head -2 | tail
+        -1
+    image: registry.access.redhat.com/ubi9/ubi:latest
+    imagePullPolicy: Always
+    name: check-ready
+    resources: {}
+    securityContext:
+      privileged: true
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-q48vg
+      readOnly: true
+  nodeName: virtlab2410.virt.eng.rdu2.dc.redhat.com
+  nodeSelector:
+    node-role.kubernetes.io/master: ""
+  overhead:
+    cpu: 250m
+    memory: 350Mi
+    tdx.intel.com/keys: "1"
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  runtimeClassName: kata-cc
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: default
+  serviceAccountName: default
+  shareProcessNamespace: true
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: csi-block
+    persistentVolumeClaim:
+      claimName: storage-unencrypted
+  - name: kube-api-access-q48vg
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+      - configMap:
+          items:
+          - key: service-ca.crt
+            path: service-ca.crt
+          name: openshift-service-ca.crt
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2025-05-22T08:06:18Z"
+    status: "False"
+    type: PodReadyToStartContainers
+  - lastProbeTime: null
+    lastTransitionTime: "2025-05-22T08:06:18Z"
+    message: 'containers with incomplete status: [format-disk check-ready]'
+    reason: ContainersNotInitialized
+    status: "False"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2025-05-22T08:06:18Z"
+    message: 'containers with unready status: [format-disk hello-openshift]'
+    reason: ContainersNotReady
+    status: "False"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2025-05-22T08:06:18Z"
+    message: 'containers with unready status: [format-disk hello-openshift]'
+    reason: ContainersNotReady
+    status: "False"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2025-05-22T08:06:18Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - image: quay.io/openshift/origin-hello-openshift
+    imageID: ""
+    lastState: {}
+    name: hello-openshift
+    ready: false
+    restartCount: 0
+    started: false
+    state:
+      waiting:
+        reason: PodInitializing
+  hostIP: 10.6.68.51
+  hostIPs:
+  - ip: 10.6.68.51
+  initContainerStatuses:
+  - image: quay.io/rh-ee-chbutler/ubi-storage-util:latest
+    imageID: ""
+    lastState: {}
+    name: format-disk
+    ready: false
+    restartCount: 0
+    started: false
+    state:
+      waiting:
+        reason: PodInitializing
+  - image: registry.access.redhat.com/ubi9/ubi:latest
+    imageID: ""
+    lastState: {}
+    name: check-ready
+    ready: false
+    restartCount: 0
+    started: false
+    state:
+      waiting:
+        reason: PodInitializing
+  phase: Pending
+  qosClass: BestEffort
+  startTime: "2025-05-22T08:06:18Z"

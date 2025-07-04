@@ -1,0 +1,24 @@
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kernel-test
+  labels:
+    app: kernel-test
+  annotations:
+    io.katacontainers.config.hypervisor.default_memory: "8096"
+spec:
+  runtimeClassName: kat
+  containers:
+  - name: check-kernel
+    securityContext: 
+      privileged: true # security must be elevated, however, it's within the kata vm
+    image: quay.io/rh-ee-chbutler/ubi-storage-util:latest # Any standard UBI container 
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        set -ex # error out
+        ip a
+        cat /proc/modules
+        tail -f /dev/null

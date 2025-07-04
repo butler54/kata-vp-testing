@@ -9,13 +9,13 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app: hello2
+      app: hello2 # vault
   policyTypes:
   - Egress
   egress:
   - to:
     - ipBlock:
-        cidr: 10.0.1.5/32 # Replace with your destination IP
+        cidr: 10.0.1.5/32 # Replace with your destination IP HSM
     ports:
     - protocol: TCP
       port: 22

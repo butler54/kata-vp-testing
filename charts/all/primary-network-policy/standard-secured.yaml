@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: standard-secured
+  namespace: standard-secured
+  labels:
+    app: standard-secured
+
+spec:
+  containers:
+    - name: coco-demo
+      image: registry.access.redhat.com/ubi9/ubi:9.3
+      command:
+        - sleep
+        - "36000"
+      securityContext:
+        privileged: false
+        seccompProfile:
+          type: RuntimeDefault
+      volumeMounts:
+        - name: keys
+          mountPath: /keys
+  volumes:
+    - name: keys
+      emptyDir:
+        medium: Memory

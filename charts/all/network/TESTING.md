@@ -49,12 +49,19 @@
 
 ## Required nodes for the isolated networks
 ```
-subnet: 10.0.1.0/24
-pod hello1: 10.0.1.2
-pod hello2: 10.0.1.3
-VM 1:  10.0.1.4
-VM 2:  10.0.1.5
+subnet: 10.0.1.0/24  # Private vLAN - secondary netwokr
+pod hello1: 10.0.1.2 # Vault bridge - aka needs "ingress" on secondary network
+pod hello2: 10.0.1.3 # Vault - needs egress 
+VM 1:  10.0.1.4 # Citrix
+VM 2:  10.0.1.5 # HSM
 ```
+
+
+**1. Deny intern-namespace communication by default - restrict access to vault - No inbound from outside the namespace to ripple content** - on default network
+
+2. **Allow from Vault / vault-bridge to trustee service  e.g. across NS **
+3. **Allow from from vault / vault-bridge egress to mirror registry**
+4. 
 
 
 

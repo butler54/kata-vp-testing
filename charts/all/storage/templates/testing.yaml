@@ -1,62 +1,60 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: baseline
+  name: iteration
   labels:
-    app: baseline
-  annotations:
-    io.katacontainers.config.hypervisor.default_memory: "8192"
+    app: iteration
 spec:
-  runtimeClassName: kata
+  runtimeClassName: kata-cc
   containers:
   - name: hello-openshift
     image: quay.io/openshift/origin-hello-openshift
     ports:
       - containerPort: 8888
     securityContext:
-      capabilities:
-        add: ["SYS_ADMIN"]
-    volumeDevices:
-      - name: csi-block
-        devicePath: /dev/block-device
-    command: ["/bin/sh", "-c"]
-    args:
-      - | 
-        set -e
-        mkdir -p /mnt/storage
-        mount /dev/block-device /mnt/storage
-        /hello-openshift
-    volumeDevices:
-    - name: csi-block
-      devicePath: /dev/block-device
+      privileged: true
+      runAsUser: 0
+    volumeMounts:
+    - name: memory
+      mountPath: /mnt/test
+      mountPropagation: Bidirectional
   initContainers:
   - name: format-disk
     image: quay.io/centos/centos:stream9 # try this for now
     securityContext:
       privileged: true # scope down!!!
+    restartPolicy: Always  # Native sidecar!
     command: ["/bin/sh", "-c"]
     args:
       - |
         set -e
         mkdir -p /mnt/storage
-        dnf install -y cryptsetup xfsprogs e2fsprogs # this is a nasty hack
         if ! blkid /dev/block-device; then
           echo "creating block device"
           mkfs.xfs /dev/block-device
         fi
+        mkdir -p /mnt/storage
+        mount /dev/block-device /mnt/storage
+        tail -f /dev/null 
+
     volumeDevices:
       - name: csi-block
         devicePath: /dev/block-device
- 
+    # volumeMounts:
+    # - name: memory
+    #   mountPath: /mnt/test
   volumes:
   - name: csi-block
     persistentVolumeClaim:
-      claimName: block-baseline
+      claimName: block-iteration
+  - name: memory
+    emptyDir:
+      medium: Memory
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name:  block-baseline
+  name:  block-iteration
 spec:
   accessModes:
     - ReadWriteOnce

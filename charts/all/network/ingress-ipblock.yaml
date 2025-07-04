@@ -13,7 +13,7 @@ spec:
   ingress:
   - from:
     - ipBlock:
-        cidr: 10.0.1.4/32
+        cidr: 10.0.1.4/32 # citrix
     ports:
     - protocol: TCP
       port: 8888

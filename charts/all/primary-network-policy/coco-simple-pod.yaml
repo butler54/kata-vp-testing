@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: coco-demo
+  namespace: coco-secured
+  labels:
+    app: coco-demo
+  annotations:
+    io.katacontainers.config.hypervisor.default_vcpus: "2"
+    io.katacontainers.config.hypervisor.default_memory: "4096"
+    io.katacontainers.config.runtime.create_container_timeout: "600"
+
+spec:
+  runtimeClassName: kata-cc
+  containers:
+    - name: coco-demo
+      image: registry.access.redhat.com/ubi9/ubi:9.3
+      command:
+        - sleep
+        - "36000"
+      securityContext:
+        privileged: false
+        seccompProfile:
+          type: RuntimeDefault
+      volumeMounts:
+        - name: keys
+          mountPath: /keys
+  volumes:
+    - name: keys
+      emptyDir:
+        medium: Memory

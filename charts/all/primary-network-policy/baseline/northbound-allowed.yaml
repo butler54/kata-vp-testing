@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-northbound-deny-east-west
+  # This policy should be created in the namespace where you want to
+  # enforce these egress rules.
+spec:
+  # Apply this policy to all pods in the namespace.
+  podSelector: {}
+
+  # This policy will only define rules for Egress (outbound) traffic.
+  policyTypes:
+    - Egress
+
+  # The list of egress rules. Rules are additive (i.e., they are OR'd).
+  # A pod's egress traffic is allowed if it matches ANY of the rules below.
+  egress:
+    # RULE 1: Allow traffic to any IP EXCEPT private cluster IPs.
+    # This rule allows pods to connect to the public internet.
+    - to:
+        - ipBlock:
+            # Allow traffic to all possible IP addresses...
+            cidr: 0.0.0.0/0
+            # ...EXCEPT for the standard private network ranges. This blocks
+            # traffic to other pods in the cluster, effectively preventing
+            # unauthorized east-west communication across namespaces.
+            # block all private IPs
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16

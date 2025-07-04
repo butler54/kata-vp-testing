@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  # 📝 IMPORTANT: This policy must be created in the namespace where you want to RECEIVE traffic.
+  name: allow-ingress-from-openshift-monitoring
+  # This policy applies to ALL pods in the 'target-namespace'.
+  podSelector: {}
+  # This rule applies to INCOMING (Ingress) traffic.
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        # Allow traffic from pods in any namespace that has the following label.
+        - namespaceSelector:
+            matchLabels:
+              # This standard label holds the actual name of the namespace.
+              kubernetes.io/metadata.name: openshift-monitoring

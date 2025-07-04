@@ -1,0 +1,78 @@
+# ------ IMPORTANT ------
+# Block devices are likely not in the correct SE linux group on the host. this will need to be corrected
+# e.g.
+# > semanage fcontext -a -t container_file_t "/dev/dm-*"
+# > restorecon -Rv /dev
+# Where /dev/dm-* is where devices are being created (lvm in this case; Ceph would be at /dev/rdb-*
+apiVersion: v1
+kind: Pod
+metadata:
+  name: baseline-rp
+  labels:
+    app: baseline-rp
+  annotations:
+    io.katacontainers.config.hypervisor.default_memory: "8192"
+spec:
+  runtimeClassName: kata-cc
+  containers:
+  - name: main-application
+    # replace with ripple image
+    image: quay.io/rh-ee-chbutler/ubi-storage-util:latest # please fix here
+    # As in ripple
+    ports:
+      - containerPort: 8888
+    # security context must be added
+    securityContext:
+      privileged: true
+    # This env var needs to be added to the ripple container definition
+    env:
+      - name: MOUNT_POINT
+        value: '/App_Data'
+    # The command and args below replaces Ripple's entry point
+    command: ["/bin/sh", "-c"]
+    args:
+      - | 
+        set -e
+        mkdir -p $MOUNT_POINT
+        mount /dev/block-device $MOUNT_POINT
+        /bin/sh -c "/usr/bin/dotnet Metaco.Harmonize.ColdBridge.dll 2>&1 | /opt/also_to_syslog.sh"
+    # Do not change the name of the volume device 
+    volumeDevices:
+    - name: csi-block
+      devicePath: /dev/block-device
+
+  # Also keep the init container provided by ripple
+  initContainers:
+  # This replaces the existing format disk container defintion. Check ready is removed.
+  - name: format-disk
+    image: quay.io/rh-ee-chbutler/ubi-storage-util:latest
+    securityContext:
+      privileged: true
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        set -e
+        if ! blkid /dev/block-device; then
+          echo "creating block device"
+          mkfs.xfs /dev/block-device
+        fi
+    volumeDevices:
+      - name: csi-block
+        devicePath: /dev/block-device
+
+  volumes:
+  - name: csi-block
+    persistentVolumeClaim:
+      claimName: block-rp
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name:  block-rp
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Block  # Critical for raw block access
+  resources:
+    requests:
+      storage: 1Gi

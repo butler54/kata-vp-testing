@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-and-specific-egress
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshift-dns
+        - namespaceSelector:
+            matchLabels:
+              # This selects the target namespace by its name. For this to work,
+              # the namespace must be labeled. You can add the label with:
+              # kubectl label namespace trustee-operator-system kubernetes.io/metadata.name=trustee-operator-system
+              kubernetes.io/metadata.name: trustee-operator-system
+          podSelector:
+            matchLabels:
+              app: kbs

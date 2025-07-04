@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: combined
+  # This policy should be created in the namespace where you want to
+  # enforce these egress rules.
+  namespace: coco-secured
+spec:
+  # Apply this policy to all pods in the namespace.
+  podSelector: {}
+
+  # This policy will only define rules for Egress (outbound) traffic.
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 10.0.0.1/32 # my container registry
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: openshift-dns # can restrict further by port /protocol
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: trustee-operator-system
+          podSelector:
+            matchLabels:
+              app: kbs
