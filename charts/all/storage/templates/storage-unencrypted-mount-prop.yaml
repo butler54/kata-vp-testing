@@ -43,7 +43,7 @@ spec:
     image: quay.io/rh-ee-chbutler/ubi-storage-util:latest # critical part here: have xfsprogs and cryptsetup see here: https://github.com/butler54/ubi-storage-util-container
     securityContext:
       privileged: true 
-    #restartPolicy: Always  # Native sidecar so it doesn't block boot
+    restartPolicy: Always  # Native sidecar so it doesn't block boot
     command: ["/bin/sh", "-c"]
     args:
       - |

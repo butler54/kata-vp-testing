@@ -57,10 +57,8 @@ spec:
     #     secretKeyRef:
     #       name: my-secret
     #       key: secret-key
-    - name: MYSECRET_KEY
-      value: tests
-    - name: RETRIEVE_SECRET # Command to retrieve a secret and print
-      value: 'echo $MYSECRET_KEY'
+    - name: MY_SECRET_KEY
+      value: test-secret-key
     command: ["/bin/sh", "-c"]
     args:
       - |
@@ -68,7 +66,7 @@ spec:
         DEVICE=/dev/block-device
         TARGETPOINT=/mnt/storage
 
-        PASS=bananas
+        PASS=$MY_SECRET_
         if cryptsetup isLuks $DEVICE; then
            echo "device is luks already"
         else 
